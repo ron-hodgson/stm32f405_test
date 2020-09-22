@@ -7,6 +7,7 @@
 #include <Arduino.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <Adafruit_GPS.h>
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -14,11 +15,18 @@
 #define OLED_RESET 4
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+Adafruit_GPS gps(&Wire);
+
 void setup()
 {
   Serial.begin(9600);
 
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3D)) {
+  if (!gps.begin(0x10)) {
+    Serial.println("GPS failed to begin");
+    for(;;);
+  }
+
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3D)) {
     Serial.println("SSD1306 allocation failed");
     for(;;);
   }
@@ -43,5 +51,8 @@ void setup()
 
 void loop()
 {
-
+  if (gps.available()) {
+    char c = gps.read();
+    Serial.write(c);
+  }
 }
